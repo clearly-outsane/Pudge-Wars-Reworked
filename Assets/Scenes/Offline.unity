@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 639890313}
   - component: {fileID: 639890312}
+  - component: {fileID: 639890311}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -140,6 +141,38 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &639890311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639890310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!20 &639890312
 Camera:
   m_ObjectHideFlags: 0
@@ -206,9 +239,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2008127832}
-  - component: {fileID: 2008127833}
-  - component: {fileID: 2008127831}
   - component: {fileID: 2008127830}
+  - component: {fileID: 2008127831}
+  - component: {fileID: 2008127833}
   m_Layer: 0
   m_Name: NetworkRoomManager
   m_TagString: Untagged
@@ -258,26 +291,25 @@ MonoBehaviour:
   runInBackground: 1
   autoStartServerBuild: 1
   serverTickRate: 30
-  offlineScene: Assets/_Scenes/Offline.unity
-  onlineScene: Assets/_Scenes/Room.unity
+  offlineScene: Assets/Scenes/Offline.unity
+  onlineScene: Assets/Scenes/Room.unity
   transport: {fileID: 2008127830}
   networkAddress: localhost
-  maxConnections: 5
+  maxConnections: 100
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 1480027675339556, guid: 343af89165152ab4185c156ab785ea32, type: 3}
   autoCreatePlayer: 1
-  playerSpawnMethod: 1
+  playerSpawnMethod: 0
   spawnPrefabs:
-  - {fileID: 1139254171913846, guid: 52f1c9ea06cfd154cb68ff9d1b66fc13, type: 3}
+  - {fileID: 9205021113693410378, guid: fd4436cfd23f59b4ab2329ca6ba67449, type: 3}
   showRoomGUI: 1
   minPlayers: 1
-  roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd, type: 3}
-  RoomScene: Assets/_Scenes/Room.unity
-  GameplayScene: Assets/_Scenes/Online.unity
+  roomPlayerPrefab: {fileID: 114033720796874720, guid: 274e070a7c937e1438aaa7c3a8023b7e, type: 3}
+  RoomScene: Assets/Scenes/Room.unity
+  GameplayScene: Assets/Scenes/Online.unity
   _allPlayersReady: 0
   roomSlots: []
   clientIndex: 0
-  rewardPrefab: {fileID: 1139254171913846, guid: 52f1c9ea06cfd154cb68ff9d1b66fc13, type: 3}
 --- !u!4 &2008127832
 Transform:
   m_ObjectHideFlags: 0

@@ -1,15 +1,23 @@
+﻿using Mirror;
 using UnityEngine;
+using NetworkTransform = Mirror.Experimental.NetworkTransform;
 
-namespace Mirror.Examples.NetworkRoom
+namespace UnityTemplateProjects
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
     [RequireComponent(typeof(Rigidbody))]
-    public class PlayerController : NetworkBehaviour
+    public class MovementController : NetworkBehaviour
     {
         public CharacterController characterController;
 
+        public GameObject hookObject;
+        [SyncVar]
+        public bool isBeingHooked;
+
+        public GameObject otherHook;
+        
         void OnValidate()
         {
             if (characterController == null)
@@ -55,6 +63,14 @@ namespace Mirror.Examples.NetworkRoom
         public bool isFalling;
         public Vector3 velocity;
 
+        
+        [Command(requiresAuthority = false)]
+        public void TriggerCollision(Transform transform)
+        {
+            isBeingHooked = true;
+            otherHook = transform.gameObject;
+        }
+
         void Update()
         {
             if (!isLocalPlayer || characterController == null || !characterController.enabled)
@@ -63,6 +79,17 @@ namespace Mirror.Examples.NetworkRoom
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
 
+            // if (isBeingHooked)
+            // {
+            //     if (otherHook.gameObject == null) isBeingHooked = false;
+            //     var otherHookScript = otherHook.GetComponent<Hook>();
+            //     otherHookScript.RetractHook();
+            //     otherHook.transform.Translate(Vector3.forward * otherHookScript.speed * Time.deltaTime);
+            //     transform.Translate(Vector3.forward * otherHookScript.speed * Time.deltaTime);
+            // }
+            //
+            //
+            
             // Q and E cancel each other out, reducing the turn to zero
             if (Input.GetKey(KeyCode.Q))
                 turn = Mathf.MoveTowards(turn, -maxTurnSpeed, turnSensitivity);
@@ -72,7 +99,8 @@ namespace Mirror.Examples.NetworkRoom
                 turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
             if (!Input.GetKey(KeyCode.Q) && !Input.GetKey(KeyCode.E))
                 turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
-
+            if (Input.GetKeyDown(KeyCode.Mouse0)) Hook();
+            
             if (isGrounded)
                 isFalling = false;
 
@@ -87,6 +115,22 @@ namespace Mirror.Examples.NetworkRoom
             }
         }
 
+        void Hook()
+        {
+            CmdSpawnHook(gameObject);
+        }
+
+        [Command]
+        void CmdSpawnHook(GameObject go, NetworkConnectionToClient conn = null)
+        {
+            var a = Instantiate(hookObject, go.transform.position + go.transform.forward, go.transform.rotation);
+            // hookObject.GetComponent<Hook>().caster = go.transform;
+            a.GetComponent<Hook>().casterGameObj = go;
+            
+            
+            NetworkServer.Spawn(a, conn);
+        }
+        
         void FixedUpdate()
         {
             if (!isLocalPlayer || characterController == null || !characterController.enabled)
@@ -108,4 +152,5 @@ namespace Mirror.Examples.NetworkRoom
             velocity = characterController.velocity;
         }
     }
+
 }
