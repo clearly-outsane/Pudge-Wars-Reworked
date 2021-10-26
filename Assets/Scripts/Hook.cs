@@ -64,10 +64,10 @@ public class Hook : NetworkBehaviour
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
             
             // this is moving the player
-            if (collidedWidth)
-            {
-                collidedWidth.transform.position = transform.position; 
-            }
+            // if (collidedWidth)
+            // {
+            //     collidedWidth.transform.position = transform.position; 
+            // }
         }
         else
         {
@@ -84,7 +84,7 @@ public class Hook : NetworkBehaviour
                 // GetComponent<NetworkIdentity>().RemoveClientAuthority();
                 // GetComponent<NetworkIdentity>().AssignClientAuthority(other.GetComponent<NetworkIdentity>().connectionToClient);
                 
-                other.GetComponent<MovementController>().TriggerCollision(transform);
+                other.GetComponent<MovementController>().TriggerCollision(casterGameObj, returnSpeed);
             }
 
             Collision(other.transform);

@@ -62,15 +62,21 @@ namespace UnityTemplateProjects
         public bool isGrounded = true;
         public bool isFalling;
         public Vector3 velocity;
-
+        
+        [SyncVar]
+        public float pullSpeed;
+        [SyncVar] 
+        public GameObject casterGameObj;
         
         [Command(requiresAuthority = false)]
-        public void TriggerCollision(Transform transform)
+        public void TriggerCollision(GameObject casterGameObj, float speed)
         {
             isBeingHooked = true;
-            otherHook = transform.gameObject;
+            
+            this.casterGameObj = casterGameObj;
+            pullSpeed = speed;
         }
-
+        
         void Update()
         {
             if (!isLocalPlayer || characterController == null || !characterController.enabled)
@@ -79,16 +85,7 @@ namespace UnityTemplateProjects
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
 
-            // if (isBeingHooked)
-            // {
-            //     if (otherHook.gameObject == null) isBeingHooked = false;
-            //     var otherHookScript = otherHook.GetComponent<Hook>();
-            //     otherHookScript.RetractHook();
-            //     otherHook.transform.Translate(Vector3.forward * otherHookScript.speed * Time.deltaTime);
-            //     transform.Translate(Vector3.forward * otherHookScript.speed * Time.deltaTime);
-            // }
-            //
-            //
+           
             
             // Q and E cancel each other out, reducing the turn to zero
             if (Input.GetKey(KeyCode.Q))
@@ -133,21 +130,39 @@ namespace UnityTemplateProjects
         {
             if (!isLocalPlayer || characterController == null || !characterController.enabled)
                 return;
-
-            transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
-
-            Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical);
-            direction = Vector3.ClampMagnitude(direction, 1f);
-            direction = transform.TransformDirection(direction);
-            direction *= moveSpeed;
-
-            if (jumpSpeed > 0)
-                characterController.Move(direction * Time.fixedDeltaTime);
+            
+            if (isBeingHooked)
+            {
+                var dist = Vector3.Distance(casterGameObj.transform.position, transform.position);
+                
+                if (dist > 5.0f)
+                {
+                    transform.LookAt(casterGameObj.transform);
+                    transform.Translate(Vector3.forward * 20.0f * Time.deltaTime);
+                }
+                else
+                {
+                    isBeingHooked = false;
+                }
+            }
             else
-                characterController.SimpleMove(direction);
+            {
+                transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
 
-            isGrounded = characterController.isGrounded;
-            velocity = characterController.velocity;
+                Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical);
+                direction = Vector3.ClampMagnitude(direction, 1f);
+                direction = transform.TransformDirection(direction);
+                direction *= moveSpeed;
+
+                if (jumpSpeed > 0)
+                    characterController.Move(direction * Time.fixedDeltaTime);
+                else
+                    characterController.SimpleMove(direction);
+
+                isGrounded = characterController.isGrounded;
+                velocity = characterController.velocity;
+            }
+
         }
     }
 
