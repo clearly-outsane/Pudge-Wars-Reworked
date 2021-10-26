@@ -124,9 +124,7 @@ namespace UnityTemplateProjects
         void CmdSpawnHook(GameObject go, NetworkConnectionToClient conn = null)
         {
             var a = Instantiate(hookObject, go.transform.position + go.transform.forward, go.transform.rotation);
-            // hookObject.GetComponent<Hook>().caster = go.transform;
             a.GetComponent<Hook>().casterGameObj = go;
-            
             
             NetworkServer.Spawn(a, conn);
         }
