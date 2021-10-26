@@ -35,8 +35,14 @@ public class Hook : NetworkBehaviour
         var dist = Vector3.Distance(transform.position, casterGameObj.transform.position);
         if (dist < stopRange)
         {
-            Destroy(gameObject);
+            CmdDestroyGameObject();
         }
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdDestroyGameObject()
+    {
+        NetworkServer.Destroy(gameObject);
     }
     
     void Update()
@@ -71,7 +77,7 @@ public class Hook : NetworkBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            CmdDestroyGameObject();
         }
     }
 
@@ -80,10 +86,7 @@ public class Hook : NetworkBehaviour
         if (!hasCollided && tagstoCheck.Contains(other.tag))
         {
             if (other.tag.Equals("Player"))
-            {            
-                // GetComponent<NetworkIdentity>().RemoveClientAuthority();
-                // GetComponent<NetworkIdentity>().AssignClientAuthority(other.GetComponent<NetworkIdentity>().connectionToClient);
-                
+            {
                 other.GetComponent<MovementController>().TriggerCollision(casterGameObj, returnSpeed);
             }
 

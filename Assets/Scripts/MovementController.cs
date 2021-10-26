@@ -135,13 +135,14 @@ namespace UnityTemplateProjects
             {
                 var dist = Vector3.Distance(casterGameObj.transform.position, transform.position);
                 
-                if (dist > 5.0f)
+                if (dist > 2f)
                 {
                     transform.LookAt(casterGameObj.transform);
                     transform.Translate(Vector3.forward * 20.0f * Time.deltaTime);
                 }
                 else
                 {
+                    
                     isBeingHooked = false;
                 }
             }
