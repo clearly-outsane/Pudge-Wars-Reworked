@@ -142,8 +142,8 @@ namespace UnityTemplateProjects
                 }
                 else
                 {
-                    
                     isBeingHooked = false;
+                    // called only once: kill score update, change my position
                 }
             }
             else
