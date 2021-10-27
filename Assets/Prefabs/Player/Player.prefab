@@ -230,9 +230,13 @@ MonoBehaviour:
   syncInterval: 0.1
   characterController: {fileID: 143011667059871024}
   hookObject: {fileID: 9205021113693410378, guid: fd4436cfd23f59b4ab2329ca6ba67449, type: 3}
+  isBeingHooked: 0
+  otherHook: {fileID: 0}
   moveSpeed: 8
   turnSensitivity: 5
   maxTurnSpeed: 150
+  turnSmoothVelocity: 0
+  turnSmoothTime: 0
   horizontal: 0
   vertical: 0
   turn: 0
@@ -240,6 +244,8 @@ MonoBehaviour:
   isGrounded: 1
   isFalling: 0
   velocity: {x: 0, y: 0, z: 0}
+  pullSpeed: 0
+  casterGameObj: {fileID: 0}
 --- !u!114 &37901054360978455
 MonoBehaviour:
   m_ObjectHideFlags: 0

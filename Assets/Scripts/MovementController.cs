@@ -1,4 +1,5 @@
-﻿using Mirror;
+﻿using System;
+using Mirror;
 using UnityEngine;
 using NetworkTransform = Mirror.Experimental.NetworkTransform;
 
@@ -7,7 +8,6 @@ namespace UnityTemplateProjects
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
-    [RequireComponent(typeof(Rigidbody))]
     public class MovementController : NetworkBehaviour
     {
         public CharacterController characterController;
@@ -17,7 +17,9 @@ namespace UnityTemplateProjects
         public bool isBeingHooked;
 
         public GameObject otherHook;
+        private Vector3 offset;
         
+
         void OnValidate()
         {
             if (characterController == null)
@@ -30,11 +32,11 @@ namespace UnityTemplateProjects
 
         public override void OnStartLocalPlayer()
         {
-            Camera.main.orthographic = false;
-            Camera.main.transform.SetParent(transform);
-            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
-            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
-
+            // Camera.main.orthographic = false;
+            // Camera.main.transform.SetParent(transform);
+            // Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
+            // Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+            offset = Camera.main.transform.position - transform.position;
             characterController.enabled = true;
         }
 
@@ -42,10 +44,10 @@ namespace UnityTemplateProjects
         {
             if (isLocalPlayer && Camera.main != null)
             {
-                Camera.main.orthographic = true;
-                Camera.main.transform.SetParent(null);
-                Camera.main.transform.localPosition = new Vector3(0f, 70f, 0f);
-                Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+                // Camera.main.orthographic = true;
+                // Camera.main.transform.SetParent(null);
+                // Camera.main.transform.localPosition = new Vector3(0f, 70f, 0f);
+                // Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
         }
 
@@ -53,6 +55,9 @@ namespace UnityTemplateProjects
         public float moveSpeed = 8f;
         public float turnSensitivity = 5f;
         public float maxTurnSpeed = 150f;
+        [SerializeField] private float turnSmoothVelocity;
+        [SerializeField] private float turnSmoothTime;
+        [SerializeField] private float cameraSmoothSpeed=0.5f;
 
         [Header("Diagnostics")]
         public float horizontal;
@@ -62,6 +67,7 @@ namespace UnityTemplateProjects
         public bool isGrounded = true;
         public bool isFalling;
         public Vector3 velocity;
+        public bool isHooking;
         
         [SyncVar]
         public float pullSpeed;
@@ -96,7 +102,11 @@ namespace UnityTemplateProjects
                 turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
             if (!Input.GetKey(KeyCode.Q) && !Input.GetKey(KeyCode.E))
                 turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
-            if (Input.GetKeyDown(KeyCode.Mouse0)) Hook();
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                isHooking = true;
+                Hook();
+            }
             
             if (isGrounded)
                 isFalling = false;
@@ -146,24 +156,47 @@ namespace UnityTemplateProjects
                     // called only once: kill score update, change my position
                 }
             }
+            else if (isHooking)
+            {
+                //player shouldnt move while hooking?
+            }
             else
             {
-                transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
+                
+                Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical).normalized;
 
-                Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical);
-                direction = Vector3.ClampMagnitude(direction, 1f);
-                direction = transform.TransformDirection(direction);
-                direction *= moveSpeed;
 
-                if (jumpSpeed > 0)
-                    characterController.Move(direction * Time.fixedDeltaTime);
-                else
-                    characterController.SimpleMove(direction);
+                if (direction.magnitude >= 0.1f)
+                {
+                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+                    float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+                    transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                    
+                    Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+                    
+                    if (jumpSpeed > 0)
+                        characterController.Move(direction * Time.fixedDeltaTime);
+                    else
+                    {
+                        characterController.Move(moveDir.normalized*moveSpeed*Time.fixedDeltaTime);
+                    }
+                }
+               
+
+                
 
                 isGrounded = characterController.isGrounded;
                 velocity = characterController.velocity;
             }
 
+        }
+        
+        void LateUpdate()
+        {
+            Vector3 desiredPosition = transform.position + offset;
+            Vector3 smoothedPosition = Vector3.Lerp(Camera.main.transform.position, desiredPosition, cameraSmoothSpeed);
+            Camera.main.transform.position = smoothedPosition;
+       
         }
     }
 
